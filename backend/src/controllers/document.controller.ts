@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 
-import { prisma } from "../config/prisma";
-
-import { extractPdfText } from "../services/pdf.service";
-import { chunkText } from "../services/chunking.service";
-import { createEmbedding } from "../services/embedding.service";
+import {
+	processDocumentUpload,
+	fetchDocuments,
+	removeDocument,
+	attachDocument,
+	fetchConversationDocuments,
+} from "../services/document.service";
 
 export async function uploadDocument(req: Request, res: Response) {
 	try {
@@ -14,63 +16,14 @@ export async function uploadDocument(req: Request, res: Response) {
 			});
 		}
 
-		let { conversationId } = req.body;
+		const { conversationId } = req.body;
 
-		if (!conversationId) {
-			const conversation = await prisma.conversation.create({
-				data: {
-					title: req.file.originalname,
-				},
-			});
-
-			conversationId = conversation.id;
-		}
-
-		const text = await extractPdfText(req.file.buffer);
-
-		const chunks = chunkText(text);
-
-		const document = await prisma.document.create({
-			data: {
-				name: req.file.originalname,
-			},
-		});
-
-		await prisma.conversationDocument.create({
-			data: {
-				conversationId,
-				documentId: document.id,
-			},
-		});
-
-		for (let i = 0; i < chunks.length; i++) {
-			const embedding = await createEmbedding(chunks[i]);
-
-			await prisma.$executeRawUnsafe(`
-        INSERT INTO "DocumentChunk"
-        (
-          id,
-          "documentId",
-          content,
-          "chunkIndex",
-          embedding
-        )
-        VALUES
-        (
-          gen_random_uuid(),
-          '${document.id}',
-          $$${chunks[i]}$$,
-          ${i},
-          '[${embedding.join(",")}]'
-        )
-      `);
-		}
+		const result = await processDocumentUpload(req.file, conversationId);
 
 		return res.status(201).json({
 			message: "Document uploaded successfully",
-			conversationId,
-			chunks: chunks.length,
-			document,
+
+			...result,
 		});
 	} catch (error) {
 		console.error(error);
@@ -83,11 +36,7 @@ export async function uploadDocument(req: Request, res: Response) {
 
 export async function getDocuments(_req: Request, res: Response) {
 	try {
-		const documents = await prisma.document.findMany({
-			orderBy: {
-				createdAt: "desc",
-			},
-		});
+		const documents = await fetchDocuments();
 
 		return res.json(documents);
 	} catch (error) {
@@ -103,11 +52,7 @@ export async function deleteDocument(req: Request, res: Response) {
 	try {
 		const id = req.params.id as string;
 
-		await prisma.document.delete({
-			where: {
-				id,
-			},
-		});
+		await removeDocument(id);
 
 		return res.json({
 			message: "Document deleted",
@@ -130,12 +75,13 @@ export async function attachDocumentToConversation(
 
 		const { documentId } = req.body;
 
-		const relation = await prisma.conversationDocument.create({
-			data: {
-				conversationId: id,
-				documentId,
-			},
-		});
+		if (!documentId) {
+			return res.status(400).json({
+				message: "Document ID is required",
+			});
+		}
+
+		const relation = await attachDocument(id, documentId);
 
 		return res.json(relation);
 	} catch (error) {
@@ -151,15 +97,7 @@ export async function getConversationDocuments(req: Request, res: Response) {
 	try {
 		const id = req.params.id as string;
 
-		const documents = await prisma.conversationDocument.findMany({
-			where: {
-				conversationId: id,
-			},
-
-			include: {
-				document: true,
-			},
-		});
+		const documents = await fetchConversationDocuments(id);
 
 		return res.json(documents);
 	} catch (error) {
