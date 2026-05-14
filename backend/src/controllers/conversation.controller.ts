@@ -1,78 +1,90 @@
 import { Request, Response } from "express";
 
-import { prisma } from "../config/prisma";
+import {
+	fetchConversations,
+	fetchConversationMessages,
+	renameConversation,
+	removeConversation,
+} from "../services/conversation.service";
 
-export async function getConversations(
-  _req: Request,
-  res: Response
-) {
-  try {
-    const conversations =
-      await prisma.conversation.findMany({
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+export async function getConversations(_req: Request, res: Response) {
+	try {
+		const conversations = await fetchConversations();
 
-    return res.json(conversations);
-  } catch (error) {
-    console.error(error);
+		return res.json(conversations);
+	} catch (error) {
+		console.error(error);
 
-    return res.status(500).json({
-      message: "Failed to fetch conversations",
-    });
-  }
+		return res.status(500).json({
+			message: "Failed to fetch conversations",
+		});
+	}
 }
 
-export async function getConversationMessages(
-  req: Request,
-  res: Response
-) {
-  try {
-    const id = req.params.id as string;
+export async function getConversationMessages(req: Request, res: Response) {
+	try {
+		const id = req.params.id as string;
 
-    const messages =
-      await prisma.message.findMany({
-        where: {
-          conversationId: id,
-        },
+		const messages = await fetchConversationMessages(id);
 
-        orderBy: {
-          createdAt: "asc",
-        },
-      });
+		return res.json(messages);
+	} catch (error) {
+		console.error(error);
 
-    return res.json(messages);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Failed to fetch messages",
-    });
-  }
+		return res.status(500).json({
+			message: "Failed to fetch messages",
+		});
+	}
 }
 
-export async function deleteConversation(
-  req: Request,
-  res: Response
-) {
-  try {
-    const id = req.params.id as string;
+export async function updateConversation(req: Request, res: Response) {
+	try {
+		const id = req.params.id as string;
 
-    await prisma.conversation.delete({
-      where: {
-        id,
-      },
-    });
+		const { title } = req.body;
 
-    return res.json({
-      message: "Conversation deleted",
-    });
-  } catch (error) {
-    console.error(error);
+		if (!title?.trim()) {
+			return res.status(400).json({
+				message: "Title is required",
+			});
+		}
 
-    return res.status(500).json({
-      message: "Failed to delete conversation",
-    });
-  }
+		if (title.length > 100) {
+			return res.status(400).json({
+				message: "Title too long",
+			});
+		}
+
+		const conversation = await renameConversation(id, title.trim());
+
+		return res.json({
+			message: "Conversation renamed successfully",
+
+			conversation,
+		});
+	} catch (error) {
+		console.error(error);
+
+		return res.status(500).json({
+			message: "Failed to rename conversation",
+		});
+	}
+}
+
+export async function deleteConversation(req: Request, res: Response) {
+	try {
+		const id = req.params.id as string;
+
+		await removeConversation(id);
+
+		return res.json({
+			message: "Conversation deleted",
+		});
+	} catch (error) {
+		console.error(error);
+
+		return res.status(500).json({
+			message: "Failed to delete conversation",
+		});
+	}
 }

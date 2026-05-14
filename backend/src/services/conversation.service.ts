@@ -1,38 +1,63 @@
 import { prisma } from "../config/prisma";
 
-
 export async function createConversation() {
-  return prisma.conversation.create({
-    data: {
-      title: "New Conversation",
-    },
-  });
+	return prisma.conversation.create({
+		data: {
+			title: "New Conversation",
+		},
+	});
+}
+
+export async function fetchConversations() {
+	return prisma.conversation.findMany({
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
 }
 
 export async function saveMessage(
-  conversationId: string,
-  role: string,
-  content: string
+	conversationId: string,
+	role: string,
+	content: string
 ) {
-  return prisma.message.create({
-    data: {
-      conversationId,
-      role,
-      content,
-    },
-  });
+	return prisma.message.create({
+		data: {
+			conversationId,
+			role,
+			content,
+		},
+	});
 }
 
-export async function getConversationMessages(
-  conversationId: string
-) {
-  return prisma.message.findMany({
-    where: {
-      conversationId,
-    },
+export async function fetchConversationMessages(conversationId: string) {
+	return prisma.message.findMany({
+		where: {
+			conversationId,
+		},
 
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
+		orderBy: {
+			createdAt: "asc",
+		},
+	});
+}
+
+export async function renameConversation(id: string, title: string) {
+	return prisma.conversation.update({
+		where: {
+			id,
+		},
+
+		data: {
+			title,
+		},
+	});
+}
+
+export async function removeConversation(id: string) {
+	return prisma.conversation.delete({
+		where: {
+			id,
+		},
+	});
 }

@@ -6,7 +6,7 @@ import { generateAnswer, streamAnswer } from "../services/ai.service";
 import {
 	saveMessage,
 	createConversation,
-	getConversationMessages,
+	fetchConversationMessages,
 } from "../services/conversation.service";
 
 export async function askQuestion(req: Request, res: Response) {
@@ -35,7 +35,7 @@ export async function askQuestion(req: Request, res: Response) {
 
 		console.log("Loading conversation history...");
 
-		const messages = await getConversationMessages(activeConversationId);
+		const messages = await fetchConversationMessages(activeConversationId);
 
 		console.log("Creating question embedding...");
 
@@ -105,7 +105,7 @@ export async function streamQuestion(req: Request, res: Response) {
 
 		await saveMessage(activeConversationId, "user", question);
 
-		const messages = await getConversationMessages(activeConversationId);
+		const messages = await fetchConversationMessages(activeConversationId);
 
 		const questionEmbedding = await createEmbedding(question);
 
