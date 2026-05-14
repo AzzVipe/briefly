@@ -42,12 +42,8 @@
 </template>
 
 <script setup lang="ts">
-	defineProps<{
-		showSidebarToggle?: boolean;
-	}>();
-	defineEmits<{
-		"toggle-sidebar": [];
-	}>();
+	defineProps<{ showSidebarToggle?: boolean }>();
+	defineEmits<{ "toggle-sidebar": [] }>();
 </script>
 
 <style scoped>
@@ -58,7 +54,10 @@
 		justify-content: space-between;
 		padding: 0 16px;
 		border-bottom: 1px solid var(--border);
-		background: var(--surface);
+		/* glass header */
+		background: rgba(15, 17, 23, 0.75);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 		position: sticky;
 		top: 0;
 		z-index: 10;

@@ -71,6 +71,7 @@
 	.sources {
 		margin-top: 12px;
 	}
+
 	.sources-toggle {
 		display: flex;
 		align-items: center;
@@ -83,13 +84,13 @@
 		font-weight: 500;
 		color: var(--text-secondary);
 		cursor: pointer;
-		transition: background 0.12s, border-color 0.12s;
+		transition: background 0.12s, border-color 0.12s, color 0.12s;
 		font-family: var(--font-sans);
 	}
 	.sources-toggle:hover {
 		background: var(--surface-hover);
-		border-color: var(--border-strong);
-		color: var(--text-primary);
+		border-color: rgba(6, 182, 212, 0.3);
+		color: #22d3ee;
 	}
 	.chevron {
 		transition: transform 0.2s;
@@ -108,16 +109,21 @@
 		display: flex;
 		gap: 8px;
 		padding: 10px 12px;
-		background: var(--surface);
+		background: var(--surface-muted);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
+		transition: border-color 0.12s;
 	}
+	.source-item:hover {
+		border-color: rgba(6, 182, 212, 0.25);
+	}
+
 	.source-num {
 		width: 20px;
 		height: 20px;
 		border-radius: 50%;
-		background: var(--primary-light);
-		color: var(--primary);
+		background: rgba(6, 182, 212, 0.12);
+		color: #22d3ee;
 		font-size: 11px;
 		font-weight: 600;
 		display: flex;

@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="input-footer">
-			DocMind can make mistakes. Verify important information.
+			Briefly can make mistakes. Verify important information.
 		</div>
 	</div>
 </template>
@@ -56,9 +56,7 @@
 		const text = inputText.value.trim();
 		inputText.value = "";
 		nextTick(() => {
-			if (textareaRef.value) {
-				textareaRef.value.style.height = "auto";
-			}
+			if (textareaRef.value) textareaRef.value.style.height = "auto";
 		});
 		emit("send", text);
 	}
@@ -76,19 +74,22 @@
 		padding: 12px 20px 16px;
 		background: var(--surface);
 		border-top: 1px solid var(--border);
+		/* subtle glass */
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
 	}
 	.input-wrapper {
 		display: flex;
 		flex-direction: column;
-		background: var(--background);
-		border: 1.5px solid var(--border);
+		background: var(--surface-muted);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		overflow: hidden;
 		transition: border-color 0.15s, box-shadow 0.15s;
 	}
 	.input-wrapper--focused {
-		border-color: var(--primary);
-		box-shadow: 0 0 0 3px rgb(28 106 255 / 0.1);
+		border-color: rgba(6, 182, 212, 0.5);
+		box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.08);
 	}
 	.chat-textarea {
 		width: 100%;
@@ -108,9 +109,10 @@
 		color: var(--text-placeholder);
 	}
 	.chat-textarea:disabled {
-		opacity: 0.6;
+		opacity: 0.5;
 		cursor: not-allowed;
 	}
+
 	.input-actions {
 		display: flex;
 		align-items: center;
@@ -124,7 +126,7 @@
 	.input-hint kbd {
 		display: inline-block;
 		padding: 1px 5px;
-		background: var(--surface-muted);
+		background: var(--surface-active);
 		border: 1px solid var(--border);
 		border-radius: 4px;
 		font-family: var(--font-sans);
@@ -139,19 +141,21 @@
 		height: 32px;
 		border-radius: var(--radius-sm);
 		border: none;
-		background: var(--surface-muted);
+		background: var(--surface-active);
 		color: var(--text-muted);
 		cursor: not-allowed;
-		transition: background 0.15s, color 0.15s;
+		transition: opacity 0.15s;
 	}
+	/* gradient send button when active */
 	.send-btn--active {
-		background: var(--primary);
+		background: var(--primary-gradient);
 		color: white;
 		cursor: pointer;
 	}
 	.send-btn--active:hover {
-		background: var(--primary-hover);
+		opacity: 0.85;
 	}
+
 	.input-footer {
 		text-align: center;
 		font-size: 11px;

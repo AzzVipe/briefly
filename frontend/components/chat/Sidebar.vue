@@ -2,20 +2,7 @@
 	<aside class="sidebar" :class="{ 'sidebar--collapsed': !isOpen }">
 		<div class="sidebar-inner">
 			<!-- Logo -->
-			<div class="sidebar-logo">
-				<div class="logo-mark">
-					<svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-						<rect width="18" height="18" rx="5" fill="var(--primary)" />
-						<path
-							d="M5 9.5L7.5 12L13 6"
-							stroke="white"
-							stroke-width="1.8"
-							stroke-linecap="round"
-							stroke-linejoin="round" />
-					</svg>
-				</div>
-				<span class="logo-text">Briefly</span>
-			</div>
+			<Logo :size="36" :showLabel="true" />
 
 			<!-- New Chat -->
 			<button class="new-chat-btn" @click="$emit('new-chat')">
@@ -82,6 +69,7 @@
 
 <script setup lang="ts">
 	import type { Conversation } from "~/types";
+	import Logo from "../Logo.vue";
 
 	const props = defineProps<{
 		conversations: Conversation[];
@@ -115,7 +103,9 @@
 		flex-shrink: 0;
 		transition: width 0.25s ease, opacity 0.25s ease;
 		overflow: hidden;
-		position: relative;
+		/* glass effect */
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 	}
 	.sidebar--collapsed {
 		width: 0;
@@ -158,18 +148,18 @@
 		gap: 8px;
 		margin: 0 10px 8px;
 		padding: 8px 12px;
-		background: var(--primary);
+		background: var(--primary-gradient);
 		color: white;
 		border: none;
 		border-radius: var(--radius-md);
 		font-size: 13px;
 		font-weight: 500;
 		cursor: pointer;
-		transition: background 0.15s;
+		transition: opacity 0.15s;
 		font-family: var(--font-sans);
 	}
 	.new-chat-btn:hover {
-		background: var(--primary-hover);
+		opacity: 0.85;
 	}
 
 	/* Search */
@@ -197,8 +187,8 @@
 		transition: border-color 0.15s, background 0.15s;
 	}
 	.search-input:focus {
-		border-color: var(--primary);
-		background: var(--surface);
+		border-color: rgba(6, 182, 212, 0.5);
+		background: var(--surface-hover);
 	}
 	.search-input::placeholder {
 		color: var(--text-placeholder);
@@ -212,9 +202,6 @@
 		min-height: 0;
 	}
 	.section-label {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
 		font-size: 10.5px;
 		font-weight: 600;
 		color: var(--text-muted);
@@ -222,25 +209,12 @@
 		letter-spacing: 0.6px;
 		padding: 8px 6px 4px;
 	}
-	.docs-link {
-		font-size: 11px;
-		font-weight: 500;
-		color: var(--primary);
-		text-decoration: none;
-		text-transform: none;
-		letter-spacing: 0;
-	}
-
-	/* Doc List */
 
 	/* Footer */
 	.sidebar-footer {
 		border-top: 1px solid var(--sidebar-border);
 		padding: 8px 6px;
 		flex-shrink: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
 	}
 	.user-area {
 		display: flex;
@@ -258,7 +232,7 @@
 		width: 26px;
 		height: 26px;
 		border-radius: 50%;
-		background: var(--primary);
+		background: var(--primary-gradient);
 		color: white;
 		font-size: 11px;
 		font-weight: 600;
@@ -266,9 +240,6 @@
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
-	}
-	.user-info {
-		min-width: 0;
 	}
 	.user-name {
 		font-size: 13px;

@@ -64,6 +64,7 @@
 	}
 	.conv-item--active {
 		background: var(--sidebar-item-active);
+		border-left: 2px solid #06b6d4;
 	}
 	.conv-item--active .conv-title {
 		color: var(--text-primary);

@@ -108,15 +108,7 @@
 					<div v-if="!hasMessages && !isLoadingMessages" class="welcome-area">
 						<div class="welcome-content">
 							<div class="welcome-logo">
-								<svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-									<rect width="30" height="30" rx="9" fill="var(--primary)" />
-									<path
-										d="M7 15l5.5 5.5L23 9"
-										stroke="white"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round" />
-								</svg>
+								<Logo />
 							</div>
 							<h1 class="welcome-title">
 								{{

@@ -9,14 +9,27 @@
 		<!-- Assistant Message -->
 		<div v-else class="assistant-message">
 			<div class="assistant-avatar">
-				<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-					<rect width="14" height="14" rx="4" fill="var(--primary)" />
+				<!-- gradient avatar mark -->
+				<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+					<rect width="28" height="28" rx="8" fill="url(#avatar-grad)" />
 					<path
-						d="M4 7.5L6 9.5L10 5"
+						d="M8 14.5L11.5 18L20 10"
 						stroke="white"
-						stroke-width="1.5"
+						stroke-width="2"
 						stroke-linecap="round"
 						stroke-linejoin="round" />
+					<defs>
+						<linearGradient
+							id="avatar-grad"
+							x1="0"
+							y1="0"
+							x2="28"
+							y2="28"
+							gradientUnits="userSpaceOnUse">
+							<stop offset="0%" stop-color="#06b6d4" />
+							<stop offset="100%" stop-color="#7c3aed" />
+						</linearGradient>
+					</defs>
 				</svg>
 			</div>
 			<div class="assistant-content">
@@ -29,7 +42,6 @@
 						v-if="message.content"
 						:content="message.content" />
 					<span v-if="message.isStreaming" class="typing-cursor" />
-					<!-- Typing indicator when no content yet -->
 					<div
 						v-if="message.isStreaming && !message.content"
 						class="typing-indicator">
@@ -38,7 +50,6 @@
 						<span class="typing-dot" />
 					</div>
 				</div>
-				<!-- Sources -->
 				<ChatSources
 					v-if="message.sources?.length"
 					:sources="message.sources" />
@@ -50,9 +61,7 @@
 <script setup lang="ts">
 	import type { Message } from "~/types";
 
-	defineProps<{
-		message: Message;
-	}>();
+	defineProps<{ message: Message }>();
 
 	function formatTime(date: Date): string {
 		return new Date(date).toLocaleTimeString([], {
@@ -87,6 +96,8 @@
 		max-width: 80%;
 		white-space: pre-wrap;
 		word-break: break-word;
+		/* subtle inner glow */
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 	}
 
 	/* Assistant */
@@ -129,8 +140,6 @@
 		align-items: center;
 		padding: 4px 0;
 	}
-
-	/* Time */
 	.message-time {
 		font-size: 11px;
 		color: var(--text-muted);

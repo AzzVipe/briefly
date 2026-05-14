@@ -78,7 +78,7 @@
 	.doc-card-icon {
 		width: 36px;
 		height: 36px;
-		background: var(--error-light);
+		background: var(--surface-muted);
 		border-radius: var(--radius-sm);
 		display: flex;
 		align-items: center;
@@ -120,7 +120,7 @@
 		flex-shrink: 0;
 	}
 	.doc-delete-btn:hover {
-		background: var(--error-light);
+		background: var(--surface-muted);
 		color: var(--error);
 	}
 </style>
