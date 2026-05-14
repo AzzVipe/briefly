@@ -1,28 +1,45 @@
 import { v4 as uuidv4 } from "uuid";
-import type { Message, Conversation } from "~/types";
-
-const messages = ref<Message[]>([]);
-const isLoading = ref(false);
-const error = ref<string | null>(null);
+import type { Message } from "~/types";
 
 export function useChat() {
+	const messages = useState<Message[]>("messages", () => []);
+	const isLoading = useState<boolean>("chatLoading", () => false);
+	const error = useState<string | null>("chatError", () => null);
+	
 	const config = useRuntimeConfig();
+
+	const router = useRouter();
+
 	const apiBase = config.public.apiBase;
-	const { upsertConversation } = useConversations();
+
+	const { upsertConversation, setActive } = useConversations();
 
 	const hasMessages = computed(() => messages.value.length > 0);
 
 	function updateMessage(id: string, patch: Partial<Message>) {
 		const idx = messages.value.findIndex((m) => m.id === id);
-		if (idx === -1) return;
-		messages.value.splice(idx, 1, { ...messages.value[idx], ...patch });
+
+		if (idx === -1) {
+			return;
+		}
+
+		messages.value.splice(idx, 1, {
+			...messages.value[idx],
+			...patch,
+		});
 	}
 
 	async function fetchMessages(conversationId: string) {
 		try {
 			const res = await $fetch<
-				Array<{ id: string; role: string; content: string; createdAt: string }>
+				Array<{
+					id: string;
+					role: string;
+					content: string;
+					createdAt: string;
+				}>
 			>(`${apiBase}/conversations/${conversationId}/messages`);
+
 			messages.value = res.map((m) => ({
 				id: m.id,
 				role: m.role as "user" | "assistant",
@@ -42,7 +59,6 @@ export function useChat() {
 
 		error.value = null;
 
-		// Optimistic user message
 		messages.value.push({
 			id: uuidv4(),
 			role: "user",
@@ -50,7 +66,6 @@ export function useChat() {
 			timestamp: new Date(),
 		});
 
-		// Temporary streaming assistant message
 		const streamingId = uuidv4();
 
 		messages.value.push({
@@ -66,14 +81,11 @@ export function useChat() {
 		try {
 			const response = await fetch(`${apiBase}/chat/stream`, {
 				method: "POST",
-
 				headers: {
 					"Content-Type": "application/json",
 				},
-
 				body: JSON.stringify({
 					question,
-
 					...(conversationId ? { conversationId } : {}),
 				}),
 			});
@@ -97,7 +109,9 @@ export function useChat() {
 			while (true) {
 				const { done, value } = await reader.read();
 
-				if (done) break;
+				if (done) {
+					break;
+				}
 
 				fullContent += decoder.decode(value, { stream: true });
 
@@ -118,11 +132,11 @@ export function useChat() {
 
 				upsertConversation({
 					id: backendConversationId,
-
 					title: question.length > 50 ? question.slice(0, 50) + "…" : question,
-
 					createdAt: new Date().toISOString(),
 				});
+
+				await router.replace(`/chat/${backendConversationId}`);
 			}
 		} catch (e) {
 			const idx = messages.value.findIndex((m) => m.id === streamingId);

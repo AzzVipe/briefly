@@ -1,14 +1,5 @@
 <template>
 	<div class="docs-layout">
-		<!-- Sidebar -->
-		<ChatSidebar
-			:conversations="conversations"
-			:active-conversation-id="activeConversationId"
-			:is-open="sidebarOpen"
-			@new-chat="navigateTo('/')"
-			@select-conversation="handleSelectConversation"
-			@delete-conversation="removeConversation" />
-
 		<!-- Main -->
 		<div class="docs-main">
 			<SharedAppHeader
@@ -16,7 +7,7 @@
 				@toggle-sidebar="sidebarOpen = !sidebarOpen">
 				<template #left>
 					<div class="breadcrumb">
-						<NuxtLink to="/" class="breadcrumb-link">Chat</NuxtLink>
+						<NuxtLink to="/chat" class="breadcrumb-link">Chat</NuxtLink>
 						<span class="breadcrumb-sep">/</span>
 						<span class="breadcrumb-current">Documents</span>
 					</div>
@@ -108,15 +99,12 @@
 		deleteDocument,
 		fetchDocuments,
 	} = useDocuments();
-	const { conversations, activeConversationId, setActive, removeConversation } =
-		useConversations();
 
 	const sidebarOpen = ref(true);
 	const { width } = useWindowSize();
 
 	onMounted(async () => {
 		await fetchDocuments();
-		if (width.value < 768) sidebarOpen.value = false;
 	});
 
 	async function handleUpload(file: File) {
@@ -127,17 +115,15 @@
 		await deleteDocument(id);
 	}
 
-	function handleSelectConversation(id: string) {
-		setActive(id);
-		navigateTo("/");
-	}
-
 	useHead({ title: "Documents — Briefly" });
 </script>
 
 <style scoped>
 	.docs-layout {
+		flex: 1;
 		display: flex;
+		flex-direction: column;
+		min-width: 0;
 		height: 100vh;
 		overflow: hidden;
 	}
