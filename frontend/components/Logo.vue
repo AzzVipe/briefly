@@ -1,0 +1,73 @@
+<template>
+	<div class="sidebar-logo">
+		<!-- T mark -->
+		<svg
+			:width="size"
+			:height="size"
+			viewBox="0 0 64 64"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg">
+			<rect width="64" height="64" rx="16" fill="url(#bg)" />
+			<text
+				x="14"
+				y="52"
+				font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+				font-size="46"
+				font-weight="800"
+				fill="rgba(255,255,255,0.92)"
+				letter-spacing="-2">
+				b
+			</text>
+			<rect x="38" y="10" width="18" height="13" rx="5" fill="url(#badge)" />
+			<text
+				x="47"
+				y="21"
+				text-anchor="middle"
+				font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+				font-size="9"
+				font-weight="800"
+				fill="white"
+				letter-spacing="0.5">
+				AI
+			</text>
+			<defs>
+				<linearGradient
+					id="bg"
+					x1="0"
+					y1="0"
+					x2="64"
+					y2="64"
+					gradientUnits="userSpaceOnUse">
+					<stop offset="0%" stop-color="#0e4f6b" />
+					<stop offset="100%" stop-color="#3b0764" />
+				</linearGradient>
+				<linearGradient
+					id="badge"
+					x1="38"
+					y1="10"
+					x2="56"
+					y2="23"
+					gradientUnits="userSpaceOnUse">
+					<stop offset="0%" stop-color="#06b6d4" />
+					<stop offset="100%" stop-color="#7c3aed" />
+				</linearGradient>
+			</defs>
+		</svg>
+
+		<!-- Wordmark -->
+		<span v-if="showLabel" class="logo-text">Briefly</span>
+	</div>
+</template>
+
+<script setup>
+	defineProps({
+		size: {
+			type: Number,
+			default: 36,
+		},
+		showLabel: {
+			type: Boolean,
+			default: false,
+		},
+	});
+</script>
