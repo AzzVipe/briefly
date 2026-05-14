@@ -69,7 +69,6 @@
 
 <script setup lang="ts">
 	import type { Conversation } from "~/types";
-	import Logo from "../Logo.vue";
 
 	const props = defineProps<{
 		conversations: Conversation[];
