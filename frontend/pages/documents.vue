@@ -132,7 +132,6 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
-		background: var(--background);
 	}
 	.docs-content {
 		flex: 1;

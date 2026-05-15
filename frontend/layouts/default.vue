@@ -15,7 +15,7 @@
 			<div
 				v-if="sidebarOpen && isMobile"
 				class="sidebar-overlay"
-				@click="sidebarOpen = false" />
+				@click="sidebarOpen = false"></div>
 
 			<div class="main-content">
 				<slot />
