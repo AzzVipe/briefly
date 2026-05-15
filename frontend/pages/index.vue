@@ -1,912 +1,738 @@
 <template>
-	<div class="app-layout">
-		<ChatSidebar
-			:conversations="conversations"
-			:active-conversation-id="activeConversationId"
-			:is-open="sidebarOpen"
-			@new-chat="handleNewChat"
-			@select-conversation="handleSelectConversation"
-			@delete-conversation="handleDeleteConversation" />
+	<div class="landing-page">
+		<!-- Background glow -->
+		<div class="landing-glow landing-glow--cyan" />
+		<div class="landing-glow landing-glow--violet" />
 
-		<div
-			v-if="sidebarOpen && isMobile"
-			class="sidebar-overlay"
-			@click="sidebarOpen = false" />
+		<!-- Navigation -->
+		<header class="landing-header">
+			<div class="landing-header-inner">
+				<Logo :show-label="true" />
 
-		<div class="main-area">
-			<!-- Header -->
-			<SharedAppHeader
-				:show-sidebar-toggle="true"
-				@toggle-sidebar="sidebarOpen = !sidebarOpen">
-				<template #left>
-					<span class="header-conv-title">{{
-						activeConversation?.title || "New conversation"
-					}}</span>
-				</template>
-				<template #right>
-					<NuxtLink to="/documents" class="header-action-btn">
-						<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-							<path
-								d="M2.5 1.5h5.5L11 4v7.5a.5.5 0 01-.5.5h-8a.5.5 0 01-.5-.5v-10a.5.5 0 01.5-.5z"
-								stroke="currentColor"
-								stroke-width="1.2" />
-							<path d="M8 1.5V4.5h3" stroke="currentColor" stroke-width="1.2" />
-						</svg>
-						Documents
+				<nav class="landing-nav">
+					<a
+						href="https://github.com/AzzVipe/briefly"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="nav-link">
+						GitHub
+					</a>
+
+					<NuxtLink to="/chat" class="nav-cta gradient-primary">
+						Open App
 					</NuxtLink>
-					<div class="model-badge">RAG</div>
-				</template>
-			</SharedAppHeader>
+				</nav>
+			</div>
+		</header>
 
-			<!-- Attached docs bar -->
-			<div class="context-bar">
-				<div class="context-bar-left">
-					<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-						<path
-							d="M2 1.5h5L10 4.5v6a.5.5 0 01-.5.5h-7a.5.5 0 01-.5-.5v-9a.5.5 0 01.5-.5z"
-							stroke="currentColor"
-							stroke-width="1.1" />
-					</svg>
-					<span class="context-label">Context</span>
-					<div class="doc-chips">
-						<span v-if="isLoadingDocs" class="chip chip--loading"
-							>Loading…</span
-						>
-						<template v-else-if="attachedDocs.length">
-							<span v-for="ad in attachedDocs" :key="ad.id" class="chip">
-								{{ ad.document.name }}
-							</span>
-						</template>
-						<span v-else class="context-empty">No documents attached</span>
-					</div>
-				</div>
-				<div class="context-bar-right">
-					<!-- Upload directly to this conversation -->
-					<label class="ctx-btn" title="Upload PDF to this conversation">
-						<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-							<path
-								d="M6 1v7M3 4l3-3 3 3"
-								stroke="currentColor"
-								stroke-width="1.3"
-								stroke-linecap="round"
-								stroke-linejoin="round" />
-							<path
-								d="M1.5 9.5v1a.5.5 0 00.5.5h8a.5.5 0 00.5-.5v-1"
-								stroke="currentColor"
-								stroke-width="1.3"
-								stroke-linecap="round" />
-						</svg>
-						Upload
-						<input
-							type="file"
-							accept=".pdf"
-							class="file-input-hidden"
-							@change="handleInlineUpload" />
-					</label>
-					<!-- Attach existing doc -->
-					<button
-						class="ctx-btn"
-						:disabled="!activeConversationId"
-						@click="showAttachModal = true"
-						title="Attach existing document">
-						<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-							<path
-								d="M2 6h8M6 2v8"
-								stroke="currentColor"
-								stroke-width="1.3"
-								stroke-linecap="round" />
-						</svg>
-						Attach
-					</button>
-				</div>
+		<!-- Hero -->
+		<section class="hero-section">
+			<div class="hero-badge">
+				<span class="hero-badge-dot" />
+				Self-hosted conversational RAG workspace
 			</div>
 
-			<!-- Messages -->
-			<div class="messages-area" ref="messagesAreaRef">
-				<!-- Welcome -->
-				<Transition name="fade">
-					<div v-if="!hasMessages && !isLoadingMessages" class="welcome-area">
-						<div class="welcome-content">
-							<div class="welcome-logo">
-								<Logo />
-							</div>
-							<h1 class="welcome-title">
-								{{
-									activeConversationId
-										? "Ready to chat"
-										: "Start a conversation"
-								}}
-							</h1>
-							<p class="welcome-desc">
-								<template v-if="!activeConversationId">
-									Send a message to create a new conversation. Upload PDFs to
-									add context.
-								</template>
-								<template v-else-if="!attachedDocs.length">
-									No documents attached yet. Upload or attach PDFs above to
-									scope retrieval to this conversation.
-								</template>
-								<template v-else>
-									{{ attachedDocs.length }} document{{
-										attachedDocs.length !== 1 ? "s" : ""
-									}}
-									attached. Ask anything about them.
-								</template>
-							</p>
-							<div
-								v-if="activeConversationId && attachedDocs.length"
-								class="starter-prompts">
-								<button
-									v-for="p in starterPrompts"
-									:key="p"
-									class="starter-btn"
-									@click="handleSend(p)">
-									{{ p }}
-								</button>
-							</div>
-						</div>
-					</div>
-				</Transition>
+			<h1 class="hero-title">
+				Chat with your PDFs
+				<span class="hero-gradient-text">locally.</span>
+			</h1>
 
-				<!-- Loading messages skeleton -->
-				<div v-if="isLoadingMessages" class="messages-skeleton">
-					<div class="skeleton-msg skeleton-msg--assistant" />
-					<div class="skeleton-msg skeleton-msg--user" />
-					<div class="skeleton-msg skeleton-msg--assistant" />
-				</div>
+			<p class="hero-description">
+				Briefly is a private AI document workspace powered by Ollama, pgvector,
+				and local LLMs. Upload PDFs, perform semantic search, and chat with your
+				documents — without relying on cloud AI.
+			</p>
 
-				<!-- Messages list -->
-				<div v-if="hasMessages" class="messages-list">
-					<TransitionGroup name="message">
-						<ChatMessage v-for="msg in messages" :key="msg.id" :message="msg" />
-					</TransitionGroup>
-				</div>
+			<div class="hero-actions">
+				<NuxtLink to="/chat" class="hero-primary-btn gradient-primary">
+					Start Chatting
+				</NuxtLink>
 
-				<!-- Error -->
-				<Transition name="fade">
-					<div v-if="error" class="error-banner">
-						<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-							<circle
-								cx="6.5"
-								cy="6.5"
-								r="5.5"
-								stroke="currentColor"
-								stroke-width="1.2" />
-							<path
-								d="M6.5 4v3M6.5 8.5v.5"
-								stroke="currentColor"
-								stroke-width="1.2"
-								stroke-linecap="round" />
-						</svg>
-						{{ error }}
-					</div>
-				</Transition>
-				<div ref="scrollAnchorRef" />
+				<a
+					href="https://github.com/AzzVipe/briefly"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="hero-secondary-btn">
+					View GitHub
+				</a>
 			</div>
 
-			<ChatInput
-				:disabled="isLoading"
-				:placeholder="inputPlaceholder"
-				@send="handleSend" />
-		</div>
+			<!-- App Preview -->
+			<div class="preview-shell">
+				<div class="preview-topbar">
+					<div class="preview-dots">
+						<span />
+						<span />
+						<span />
+					</div>
 
-		<!-- Attach existing doc modal -->
-		<Teleport to="body">
-			<Transition name="fade">
-				<div
-					v-if="showAttachModal"
-					class="modal-backdrop"
-					@click.self="showAttachModal = false">
-					<div class="modal">
-						<div class="modal-header">
-							<span class="modal-title">Attach documents</span>
-							<button class="modal-close" @click="showAttachModal = false">
-								<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-									<path
-										d="M2 2l10 10M12 2L2 12"
-										stroke="currentColor"
-										stroke-width="1.5"
-										stroke-linecap="round" />
-								</svg>
-							</button>
+					<div class="preview-url">localhost:3000/chat</div>
+				</div>
+
+				<div class="preview-content">
+					<div class="preview-sidebar">
+						<div class="preview-sidebar-title">Conversations</div>
+
+						<div class="preview-conversation preview-conversation--active">
+							Transformer paper summary
 						</div>
-						<p class="modal-desc">
-							Select documents to attach to this conversation.
-						</p>
-						<div class="modal-list">
-							<div v-if="!availableToAttach.length" class="modal-empty">
-								No documents available.
-								<NuxtLink to="/documents" @click="showAttachModal = false"
-									>Upload some first →</NuxtLink
-								>
+
+						<div class="preview-conversation">Meeting notes analysis</div>
+
+						<div class="preview-conversation">Postgres vector search</div>
+					</div>
+
+					<div class="preview-chat">
+						<div class="preview-context-bar">
+							<div class="preview-chip">research-paper.pdf</div>
+							<div class="preview-chip">architecture.pdf</div>
+						</div>
+
+						<div class="preview-messages">
+							<div class="preview-message preview-message--user">
+								What are the main findings of the paper?
 							</div>
-							<label
-								v-for="doc in availableToAttach"
-								:key="doc.id"
-								class="modal-doc-item"
-								:class="{
-									'modal-doc-item--selected': pendingAttach.has(doc.id),
-									'modal-doc-item--attached': isAlreadyAttached(doc.id),
-								}">
-								<input
-									type="checkbox"
-									class="modal-checkbox"
-									:checked="
-										pendingAttach.has(doc.id) || isAlreadyAttached(doc.id)
-									"
-									:disabled="isAlreadyAttached(doc.id)"
-									@change="togglePending(doc.id)" />
-								<div class="modal-doc-icon">
-									<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-										<path
-											d="M3 2A1 1 0 014 1h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2z"
-											stroke="var(--error)"
-											stroke-width="1.1" />
-										<path
-											d="M10 1v3h3"
-											stroke="var(--error)"
-											stroke-width="1.1" />
-									</svg>
-								</div>
-								<span class="modal-doc-name">{{ doc.name }}</span>
-								<span
-									v-if="isAlreadyAttached(doc.id)"
-									class="modal-attached-badge"
-									>attached</span
-								>
-							</label>
+
+							<div class="preview-message preview-message--assistant">
+								The paper introduces a retrieval-enhanced transformer
+								architecture optimized for semantic search and long-context
+								reasoning...
+							</div>
 						</div>
-						<div class="modal-footer">
-							<button class="modal-cancel" @click="showAttachModal = false">
-								Cancel
-							</button>
-							<button
-								class="modal-confirm"
-								:disabled="!pendingAttach.size || isAttaching"
-								@click="confirmAttach">
-								{{
-									isAttaching
-										? "Attaching…"
-										: `Attach${
-												pendingAttach.size ? ` (${pendingAttach.size})` : ""
-										  }`
-								}}
-							</button>
+
+						<div class="preview-input">
+							Ask a question about your documents...
 						</div>
 					</div>
 				</div>
-			</Transition>
-		</Teleport>
+			</div>
+		</section>
+
+		<!-- Features -->
+		<section class="features-section">
+			<div class="section-heading">
+				<span class="section-label">Features</span>
+				<h2>Built for local AI workflows</h2>
+				<p>Everything runs on infrastructure you control.</p>
+			</div>
+
+			<div class="features-grid">
+				<div class="feature-card">
+					<div class="feature-icon">📄</div>
+					<h3>PDF ingestion</h3>
+					<p>
+						Upload documents and automatically extract, chunk, and index content
+						for semantic retrieval.
+					</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">🧠</div>
+					<h3>Local embeddings</h3>
+					<p>
+						Generate embeddings locally with Ollama-powered models — no external
+						AI APIs required.
+					</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">🔎</div>
+					<h3>Semantic search</h3>
+					<p>
+						Powered by PostgreSQL + pgvector for fast, reliable vector
+						similarity search.
+					</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">⚡</div>
+					<h3>Streaming responses</h3>
+					<p>
+						Receive AI responses token-by-token with a real-time conversational
+						experience.
+					</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">🐳</div>
+					<h3>Dockerized stack</h3>
+					<p>
+						Run the full stack with Docker Compose, including Ollama,
+						PostgreSQL, and the API.
+					</p>
+				</div>
+
+				<div class="feature-card">
+					<div class="feature-icon">🔒</div>
+					<h3>Private by default</h3>
+					<p>
+						Your documents and conversations stay on your machine and
+						infrastructure.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- Architecture -->
+		<section class="architecture-section">
+			<div class="section-heading">
+				<span class="section-label">Architecture</span>
+				<h2>Simple local-first pipeline</h2>
+			</div>
+
+			<div class="architecture-flow">
+				<div class="flow-node">PDFs</div>
+				<div class="flow-arrow">→</div>
+				<div class="flow-node">Embeddings</div>
+				<div class="flow-arrow">→</div>
+				<div class="flow-node">pgvector</div>
+				<div class="flow-arrow">→</div>
+				<div class="flow-node">Ollama</div>
+				<div class="flow-arrow">→</div>
+				<div class="flow-node">Chat</div>
+			</div>
+		</section>
+
+		<!-- CTA -->
+		<section class="bottom-cta-section">
+			<div class="bottom-cta-card">
+				<h2>Start chatting with your documents</h2>
+
+				<p>Self-hosted. Local-first. Built for developers.</p>
+
+				<NuxtLink to="/chat" class="bottom-cta-btn gradient-primary">
+					Open Briefly
+				</NuxtLink>
+			</div>
+		</section>
 	</div>
 </template>
 
 <script setup lang="ts">
-	import { useWindowSize } from "@vueuse/core";
+	definePageMeta({ layout: "blank" });
 
-	const {
-		messages,
-		isLoading,
-		hasMessages,
-		error,
-		sendMessage,
-		clearMessages,
-		fetchMessages,
-	} = useChat();
-	const {
-		conversations,
-		activeConversationId,
-		fetchConversations,
-		setActive,
-		deleteConversation,
-		upsertConversation,
-	} = useConversations();
-	const { documents, fetchDocuments, uploadDocument } = useDocuments();
-	const {
-		attachedDocs,
-		isLoadingDocs,
-		fetchAttachedDocs,
-		attachDocument,
-		clearAttachedDocs,
-	} = useConversationDocuments();
-
-	const sidebarOpen = ref(true);
-	const messagesAreaRef = ref<HTMLElement | null>(null);
-	const scrollAnchorRef = ref<HTMLElement | null>(null);
-	const isLoadingMessages = ref(false);
-	const showAttachModal = ref(false);
-	const pendingAttach = ref(new Set<string>());
-	const isAttaching = ref(false);
-
-	const { width } = useWindowSize();
-	const isMobile = computed(() => width.value < 768);
-	watch(
-		isMobile,
-		(v) => {
-			sidebarOpen.value = !v;
-		},
-		{ immediate: true }
-	);
-
-	const activeConversation = computed(() =>
-		conversations.value.find((c) => c.id === activeConversationId.value)
-	);
-
-	const inputPlaceholder = computed(() => {
-		if (isLoading.value) return "Generating response…";
-		if (activeConversationId.value && !attachedDocs.value.length)
-			return "Attach documents above to enable scoped retrieval…";
-		return "Ask a question about your documents…";
+	useHead({
+		title: "Briefly — Local-first conversational RAG workspace",
+		meta: [
+			{
+				name: "description",
+				content:
+					"Self-hosted conversational RAG workspace for chatting with PDFs using local LLMs.",
+			},
+		],
 	});
-
-	const starterPrompts = [
-		"Summarize the key points",
-		"What are the main findings?",
-		"Explain the technical details",
-		"What are the recommendations?",
-	];
-
-	// Documents not yet attached to this conversation
-	const availableToAttach = computed(() => documents.value);
-
-	function isAlreadyAttached(docId: string) {
-		return attachedDocs.value.some((d) => d.documentId === docId);
-	}
-
-	function togglePending(docId: string) {
-		const s = new Set(pendingAttach.value);
-		if (s.has(docId)) s.delete(docId);
-		else s.add(docId);
-		pendingAttach.value = s;
-	}
-
-	async function confirmAttach() {
-		if (!activeConversationId.value) return;
-		isAttaching.value = true;
-		try {
-			for (const docId of pendingAttach.value) {
-				await attachDocument(activeConversationId.value, docId);
-			}
-		} finally {
-			isAttaching.value = false;
-			pendingAttach.value = new Set();
-			showAttachModal.value = false;
-		}
-	}
-
-	async function handleInlineUpload(e: Event) {
-		const file = (e.target as HTMLInputElement).files?.[0];
-		if (!file) return;
-		const result = await uploadDocument(
-			file,
-			activeConversationId.value ?? undefined
-		);
-		if (result) {
-			// If there was no active conversation, backend created one — activate it
-			if (!activeConversationId.value) {
-				setActive(result.conversationId);
-				upsertConversation({
-					id: result.conversationId,
-					title: result.document.name,
-					createdAt: new Date().toISOString(),
-				});
-			}
-			await fetchAttachedDocs(result.conversationId);
-		}
-		(e.target as HTMLInputElement).value = "";
-	}
-
-	async function handleSend(text: string) {
-		if (!text.trim()) return;
-		await sendMessage(text, activeConversationId.value ?? undefined);
-		if (isMobile.value) sidebarOpen.value = false;
-	}
-
-	async function handleNewChat() {
-		setActive(null);
-		clearMessages();
-		clearAttachedDocs();
-		if (isMobile.value) sidebarOpen.value = false;
-	}
-
-	async function handleSelectConversation(id: string) {
-		if (id === activeConversationId.value) return;
-		setActive(id);
-		clearMessages();
-		clearAttachedDocs();
-		isLoadingMessages.value = true;
-		await Promise.all([fetchMessages(id), fetchAttachedDocs(id)]);
-		isLoadingMessages.value = false;
-		if (isMobile.value) sidebarOpen.value = false;
-	}
-
-	async function handleDeleteConversation(id: string) {
-		await deleteConversation(id);
-		if (activeConversationId.value === id) {
-			clearMessages();
-			clearAttachedDocs();
-		}
-	}
-
-	// Auto-scroll
-	watch(
-		messages,
-		async () => {
-			await nextTick();
-			scrollAnchorRef.value?.scrollIntoView({ behavior: "smooth" });
-		},
-		{ deep: true }
-	);
-
-	// Reset pending when modal closes
-	watch(showAttachModal, (open) => {
-		if (!open) pendingAttach.value = new Set();
-	});
-
-	onMounted(async () => {
-		await Promise.all([fetchConversations(), fetchDocuments()]);
-	});
-
-	useHead({ title: "Briefly — Chat" });
 </script>
 
 <style scoped>
-	.app-layout {
-		display: flex;
-		height: 100vh;
+	.landing-page {
+		position: relative;
+		min-height: 100vh;
+		background: var(--background);
 		overflow: hidden;
 	}
 
-	.sidebar-overlay {
+	.landing-glow {
 		position: fixed;
-		inset: 0;
-		background: rgb(0 0 0 / 0.2);
+		border-radius: 9999px;
+		filter: blur(120px);
+		opacity: 0.14;
+		pointer-events: none;
+	}
+
+	.landing-glow--cyan {
+		width: 420px;
+		height: 420px;
+		background: #06b6d4;
+		top: -120px;
+		left: -120px;
+	}
+
+	.landing-glow--violet {
+		width: 520px;
+		height: 520px;
+		background: #7c3aed;
+		bottom: -220px;
+		right: -120px;
+	}
+
+	.landing-header {
+		position: sticky;
+		top: 0;
 		z-index: 20;
+		backdrop-filter: blur(14px);
+		background: rgba(15, 17, 23, 0.72);
+		border-bottom: 1px solid var(--border-muted);
 	}
 
-	.main-area {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
-		background: var(--surface);
-		overflow: hidden;
-	}
-
-	/* Header */
-	.header-conv-title {
-		font-size: 13px;
-		font-weight: 500;
-		color: var(--text-secondary);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		max-width: 280px;
-	}
-	.header-action-btn {
-		display: flex;
-		align-items: center;
-		gap: 5px;
-		padding: 5px 10px;
-		background: var(--surface-muted);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		font-size: 12px;
-		font-weight: 500;
-		color: var(--text-secondary);
-		text-decoration: none;
-		transition: background 0.12s;
-	}
-	.header-action-btn:hover {
-		background: var(--surface-hover);
-		color: var(--text-primary);
-	}
-	.model-badge {
-		padding: 3px 8px;
-		background: var(--primary-light);
-		color: var(--primary);
-		border-radius: var(--radius-full);
-		font-size: 11px;
-		font-weight: 600;
-	}
-
-	/* Context bar */
-	.context-bar {
+	.landing-header-inner {
+		max-width: 1180px;
+		margin: 0 auto;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		padding: 7px 16px;
-		border-bottom: 1px solid var(--border-muted);
-		background: var(--surface-muted);
-		min-height: 38px;
-		flex-shrink: 0;
 	}
-	.context-bar-left {
+
+	.landing-nav {
 		display: flex;
 		align-items: center;
-		gap: 7px;
-		min-width: 0;
-		flex: 1;
-		color: var(--text-muted);
+		gap: 12px;
 	}
-	.context-label {
+
+	.nav-link {
+		font-size: 13px;
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition: color 0.15s ease;
+	}
+
+	.nav-link:hover {
+		color: var(--text-primary);
+	}
+
+	.nav-cta {
+		padding: 9px 14px;
+		border-radius: var(--radius-md);
+		font-size: 13px;
+		font-weight: 600;
+		color: white;
+		text-decoration: none;
+		box-shadow: var(--shadow-md);
+	}
+
+	.hero-section {
+		position: relative;
+		max-width: 1180px;
+		margin: 0 auto;
+		padding: 88px 24px 72px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.hero-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 7px 12px;
+		background: var(--surface-muted);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		font-size: 12px;
+		color: var(--text-secondary);
+		margin-bottom: 24px;
+	}
+
+	.hero-badge-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 9999px;
+		background: #22d3ee;
+	}
+
+	.hero-title {
+		max-width: 900px;
+		font-size: clamp(3rem, 7vw, 5.8rem);
+		line-height: 0.95;
+		letter-spacing: -0.06em;
+		font-weight: 800;
+		margin-bottom: 24px;
+	}
+
+	.hero-gradient-text {
+		background: var(--primary-gradient);
+		background-clip: text;
+		-webkit-background-clip: text;
+		color: transparent;
+	}
+
+	.hero-description {
+		max-width: 760px;
+		font-size: 18px;
+		line-height: 1.8;
+		color: var(--text-secondary);
+		margin-bottom: 36px;
+	}
+
+	.hero-actions {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		margin-bottom: 72px;
+	}
+
+	.hero-primary-btn,
+	.bottom-cta-btn {
+		padding: 13px 20px;
+		border-radius: var(--radius-lg);
+		font-size: 14px;
+		font-weight: 600;
+		color: white;
+		text-decoration: none;
+		box-shadow: var(--shadow-lg);
+	}
+
+	.hero-secondary-btn {
+		padding: 13px 20px;
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		font-size: 14px;
+		font-weight: 500;
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition: background 0.15s ease;
+	}
+
+	.hero-secondary-btn:hover {
+		background: var(--surface-hover);
+		color: var(--text-primary);
+	}
+
+	.preview-shell {
+		width: 100%;
+		max-width: 1080px;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid var(--border);
+		border-radius: 24px;
+		overflow: hidden;
+		box-shadow: var(--shadow-lg);
+		backdrop-filter: blur(18px);
+	}
+
+	.preview-topbar {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 14px 18px;
+		border-bottom: 1px solid var(--border-muted);
+		background: rgba(255, 255, 255, 0.02);
+	}
+
+	.preview-dots {
+		display: flex;
+		gap: 6px;
+	}
+
+	.preview-dots span {
+		width: 8px;
+		height: 8px;
+		border-radius: 9999px;
+		background: rgba(255, 255, 255, 0.2);
+	}
+
+	.preview-url {
+		font-size: 12px;
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+	}
+
+	.preview-content {
+		display: flex;
+		height: 560px;
+	}
+
+	.preview-sidebar {
+		width: 260px;
+		padding: 18px;
+		border-right: 1px solid var(--border-muted);
+		background: var(--sidebar-bg);
+	}
+
+	.preview-sidebar-title {
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		margin-bottom: 16px;
+	}
+
+	.preview-conversation {
+		padding: 12px;
+		border-radius: var(--radius-md);
+		font-size: 13px;
+		color: var(--text-secondary);
+		margin-bottom: 8px;
+		background: transparent;
+		border: 1px solid transparent;
+	}
+
+	.preview-conversation--active {
+		background: var(--sidebar-item-active);
+		border-color: rgba(124, 58, 237, 0.22);
+		color: var(--text-primary);
+	}
+
+	.preview-chat {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		background: var(--surface);
+	}
+
+	.preview-context-bar {
+		display: flex;
+		gap: 8px;
+		padding: 14px 18px;
+		border-bottom: 1px solid var(--border-muted);
+	}
+
+	.preview-chip {
+		padding: 5px 10px;
+		border-radius: var(--radius-full);
+		background: rgba(255, 255, 255, 0.06);
+		border: 1px solid var(--border);
+		font-size: 11px;
+		color: var(--text-secondary);
+	}
+
+	.preview-messages {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 18px;
+		padding: 24px;
+	}
+
+	.preview-message {
+		max-width: 72%;
+		padding: 14px 16px;
+		border-radius: 18px;
+		font-size: 13px;
+		line-height: 1.7;
+	}
+
+	.preview-message--user {
+		align-self: flex-end;
+		background: var(--user-bubble);
+		color: white;
+	}
+
+	.preview-message--assistant {
+		align-self: flex-start;
+		background: var(--assistant-bubble);
+		border: 1px solid var(--assistant-bubble-border);
+		color: var(--text-primary);
+	}
+
+	.preview-input {
+		margin: 18px;
+		padding: 15px 18px;
+		border-radius: var(--radius-xl);
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid var(--border);
+		font-size: 13px;
+		color: var(--text-placeholder);
+	}
+
+	.features-section,
+	.architecture-section,
+	.bottom-cta-section {
+		max-width: 1180px;
+		margin: 0 auto;
+		padding: 0 24px 120px;
+	}
+
+	.section-heading {
+		max-width: 680px;
+		margin-bottom: 44px;
+	}
+
+	.section-label {
+		display: inline-flex;
+		padding: 5px 10px;
+		border-radius: var(--radius-full);
+		background: var(--primary-light);
 		font-size: 11px;
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		flex-shrink: 0;
-		color: var(--text-muted);
+		letter-spacing: 0.08em;
+		color: #c4b5fd;
+		margin-bottom: 16px;
 	}
-	.doc-chips {
+
+	.section-heading h2 {
+		font-size: clamp(2rem, 4vw, 3rem);
+		line-height: 1.05;
+		letter-spacing: -0.04em;
+		margin-bottom: 14px;
+	}
+
+	.section-heading p {
+		font-size: 16px;
+		line-height: 1.8;
+		color: var(--text-secondary);
+	}
+
+	.features-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 18px;
+	}
+
+	.feature-card {
+		padding: 24px;
+		border-radius: 20px;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid var(--border);
+		backdrop-filter: blur(14px);
+	}
+
+	.feature-icon {
+		font-size: 22px;
+		margin-bottom: 18px;
+	}
+
+	.feature-card h3 {
+		font-size: 18px;
+		margin-bottom: 10px;
+	}
+
+	.feature-card p {
+		font-size: 14px;
+		line-height: 1.8;
+		color: var(--text-secondary);
+	}
+
+	.architecture-flow {
 		display: flex;
 		align-items: center;
-		gap: 5px;
+		justify-content: center;
+		gap: 14px;
 		flex-wrap: wrap;
-		min-width: 0;
-	}
-	.chip {
-		display: inline-flex;
-		align-items: center;
-		padding: 2px 8px;
-		background: var(--surface);
+		padding: 40px;
+		border-radius: 24px;
+		background: rgba(255, 255, 255, 0.03);
 		border: 1px solid var(--border);
-		border-radius: var(--radius-full);
-		font-size: 11.5px;
-		color: var(--text-secondary);
-		white-space: nowrap;
-		max-width: 160px;
-		overflow: hidden;
-		text-overflow: ellipsis;
 	}
-	.chip--loading {
+
+	.flow-node {
+		padding: 14px 20px;
+		border-radius: var(--radius-lg);
 		background: var(--surface-muted);
-		color: var(--text-muted);
-		animation: pulse 1.5s ease infinite;
-	}
-	@keyframes pulse {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.5;
-		}
-	}
-	.context-empty {
-		font-size: 12px;
-		color: var(--text-muted);
-		font-style: italic;
-	}
-	.context-bar-right {
-		display: flex;
-		gap: 5px;
-		flex-shrink: 0;
-	}
-	.ctx-btn {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		padding: 4px 9px;
-		background: var(--surface);
 		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		font-size: 11.5px;
-		font-weight: 500;
-		color: var(--text-secondary);
-		cursor: pointer;
-		transition: background 0.12s, color 0.12s;
+		font-weight: 600;
+	}
+
+	.flow-arrow {
+		font-size: 20px;
+		color: var(--text-muted);
+	}
+
+	.bottom-cta-card {
+		padding: 64px 24px;
+		border-radius: 32px;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid var(--border);
+		text-align: center;
 		position: relative;
-		font-family: var(--font-sans);
+		overflow: hidden;
 	}
-	.ctx-btn:hover {
-		background: var(--surface-hover);
-		color: var(--text-primary);
-	}
-	.ctx-btn:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
-		pointer-events: none;
-	}
-	.file-input-hidden {
+
+	.bottom-cta-card::before {
+		content: "";
 		position: absolute;
 		inset: 0;
-		opacity: 0;
-		cursor: pointer;
+		background: radial-gradient(
+				circle at top left,
+				rgba(6, 182, 212, 0.14),
+				transparent 40%
+			),
+			radial-gradient(
+				circle at bottom right,
+				rgba(124, 58, 237, 0.14),
+				transparent 40%
+			);
+		pointer-events: none;
 	}
 
-	/* Messages */
-	.messages-area {
-		flex: 1;
-		overflow-y: auto;
-		padding: 20px 0 8px;
-	}
-	.messages-list {
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-		max-width: 720px;
-		margin: 0 auto;
-		padding: 0 24px;
+	.bottom-cta-card h2 {
+		font-size: clamp(2rem, 5vw, 3.5rem);
+		line-height: 1.05;
+		letter-spacing: -0.05em;
+		margin-bottom: 16px;
+		position: relative;
 	}
 
-	/* Skeleton */
-	.messages-skeleton {
-		max-width: 720px;
-		margin: 24px auto;
-		padding: 0 24px;
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-	}
-	.skeleton-msg {
-		height: 56px;
-		border-radius: var(--radius-md);
-		background: linear-gradient(
-			90deg,
-			var(--surface-muted) 25%,
-			var(--surface-hover) 50%,
-			var(--surface-muted) 75%
-		);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s ease infinite;
-	}
-	.skeleton-msg--user {
-		width: 55%;
-		align-self: flex-end;
-	}
-	.skeleton-msg--assistant {
-		width: 80%;
-	}
-	@keyframes shimmer {
-		0% {
-			background-position: 200% 0;
-		}
-		100% {
-			background-position: -200% 0;
-		}
-	}
-
-	/* Welcome */
-	.welcome-area {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 70%;
-		padding: 24px;
-	}
-	.welcome-content {
-		max-width: 480px;
-		text-align: center;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 10px;
-	}
-	.welcome-logo {
-		margin-bottom: 4px;
-	}
-	.welcome-title {
-		font-size: 20px;
-		font-weight: 700;
-		color: var(--text-primary);
-		letter-spacing: -0.3px;
-	}
-	.welcome-desc {
-		font-size: 13.5px;
-		color: var(--text-muted);
-		line-height: 1.6;
-		max-width: 380px;
-	}
-	.starter-prompts {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 7px;
-		width: 100%;
-		margin-top: 6px;
-	}
-	.starter-btn {
-		padding: 9px 13px;
-		background: var(--surface-muted);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
-		font-size: 12px;
+	.bottom-cta-card p {
+		font-size: 16px;
+		line-height: 1.8;
 		color: var(--text-secondary);
-		cursor: pointer;
-		text-align: left;
-		transition: background 0.12s, color 0.12s;
-		font-family: var(--font-sans);
-		line-height: 1.4;
-	}
-	.starter-btn:hover {
-		background: var(--surface-hover);
-		color: var(--text-primary);
+		margin-bottom: 28px;
+		position: relative;
 	}
 
-	/* Error */
-	.error-banner {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		max-width: 720px;
-		margin: 12px auto;
-		padding: 10px 14px;
-		background: var(--error-light);
-		border: 1px solid #fca5a5;
-		border-radius: var(--radius-md);
-		font-size: 13px;
-		color: var(--error);
+	.bottom-cta-btn {
+		display: inline-flex;
+		position: relative;
 	}
 
-	/* Modal */
-	.modal-backdrop {
-		position: fixed;
-		inset: 0;
-		background: rgb(0 0 0 / 0.3);
-		z-index: 100;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 24px;
-	}
-	.modal {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
-		width: 100%;
-		max-width: 420px;
-		box-shadow: var(--shadow-lg);
-		overflow: hidden;
-	}
-	.modal-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 16px 18px 12px;
-	}
-	.modal-title {
-		font-size: 15px;
-		font-weight: 600;
-		color: var(--text-primary);
-	}
-	.modal-close {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 26px;
-		height: 26px;
-		border: none;
-		background: none;
-		color: var(--text-muted);
-		border-radius: var(--radius-sm);
-		cursor: pointer;
-		transition: background 0.12s;
-	}
-	.modal-close:hover {
-		background: var(--surface-muted);
-		color: var(--text-primary);
-	}
-	.modal-desc {
-		font-size: 12.5px;
-		color: var(--text-muted);
-		padding: 0 18px 12px;
-	}
-	.modal-list {
-		max-height: 260px;
-		overflow-y: auto;
-		padding: 4px 10px 8px;
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-	}
-	.modal-empty {
-		padding: 16px;
-		text-align: center;
-		font-size: 13px;
-		color: var(--text-muted);
-	}
-	.modal-empty a {
-		color: var(--primary);
-		text-decoration: none;
-	}
-	.modal-doc-item {
-		display: flex;
-		align-items: center;
-		gap: 9px;
-		padding: 9px 10px;
-		border-radius: var(--radius-sm);
-		cursor: pointer;
-		transition: background 0.12s;
-	}
-	.modal-doc-item:hover {
-		background: var(--surface-muted);
-	}
-	.modal-doc-item--selected {
-		background: var(--primary-light);
-	}
-	.modal-checkbox {
-		width: 14px;
-		height: 14px;
-		accent-color: var(--primary);
-		flex-shrink: 0;
-		cursor: pointer;
-	}
-	.modal-doc-icon {
-		flex-shrink: 0;
-	}
-	.modal-doc-name {
-		font-size: 13px;
-		color: var(--text-primary);
-		flex: 1;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.modal-attached-badge {
-		font-size: 10px;
-		font-weight: 500;
-		color: var(--success);
-		background: var(--success-light);
-		padding: 2px 6px;
-		border-radius: var(--radius-full);
-		flex-shrink: 0;
-	}
-	.modal-footer {
-		display: flex;
-		gap: 8px;
-		justify-content: flex-end;
-		padding: 12px 18px;
-		border-top: 1px solid var(--border);
-	}
-	.modal-cancel {
-		padding: 7px 14px;
-		background: none;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		font-size: 13px;
-		color: var(--text-secondary);
-		cursor: pointer;
-		font-family: var(--font-sans);
-		transition: background 0.12s;
-	}
-	.modal-cancel:hover {
-		background: var(--surface-muted);
-	}
-	.modal-confirm {
-		padding: 7px 16px;
-		background: var(--primary);
-		border: none;
-		border-radius: var(--radius-sm);
-		font-size: 13px;
-		font-weight: 500;
-		color: white;
-		cursor: pointer;
-		font-family: var(--font-sans);
-		transition: background 0.12s;
-	}
-	.modal-confirm:hover:not(:disabled) {
-		background: var(--primary-hover);
-	}
-	.modal-confirm:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
+	@media (max-width: 1024px) {
+		.preview-content {
+			flex-direction: column;
+			height: auto;
+		}
 
-	.modal-doc-item--attached {
-		opacity: 0.5;
-		cursor: default;
+		.preview-sidebar {
+			width: 100%;
+			border-right: none;
+			border-bottom: 1px solid var(--border-muted);
+		}
+
+		.features-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
 	}
 
 	@media (max-width: 768px) {
-		.starter-prompts {
+		.landing-header-inner {
+			padding: 14px 16px;
+		}
+
+		.hero-section {
+			padding: 64px 16px 48px;
+		}
+
+		.hero-actions {
+			flex-direction: column;
+			width: 100%;
+		}
+
+		.hero-primary-btn,
+		.hero-secondary-btn {
+			width: 100%;
+			justify-content: center;
+		}
+
+		.preview-shell {
+			border-radius: 18px;
+		}
+
+		.preview-message {
+			max-width: 90%;
+		}
+
+		.features-grid {
 			grid-template-columns: 1fr;
 		}
-		.messages-list {
-			padding: 0 16px;
+
+		.features-section,
+		.architecture-section,
+		.bottom-cta-section {
+			padding: 0 16px 80px;
 		}
-		.context-bar {
-			flex-wrap: wrap;
-			gap: 6px;
+
+		.architecture-flow {
+			padding: 24px;
+		}
+
+		.flow-arrow {
+			display: none;
+		}
+
+		.bottom-cta-card {
+			padding: 44px 20px;
 		}
 	}
 </style>
