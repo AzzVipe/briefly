@@ -1,5 +1,5 @@
 <template>
-	<div class="sidebar-logo">
+	<div class="brand">
 		<!-- T mark -->
 		<svg
 			:width="size"
@@ -55,7 +55,10 @@
 		</svg>
 
 		<!-- Wordmark -->
-		<span v-if="showLabel" class="logo-text">Briefly</span>
+		<div v-if="showLabel" class="brand-copy">
+			<span class="brand-name">Briefly</span>
+			<span class="brand-tagline">Local-first RAG workspace</span>
+		</div>
 	</div>
 </template>
 
@@ -71,3 +74,34 @@
 		},
 	});
 </script>
+
+<style>
+	.brand {
+		display: flex;
+		align-items: center;
+		padding: 14px 14px 12px;
+		gap: 12px;
+	}
+
+	.brand-logo {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.brand-copy {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.brand-name {
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: -0.2px;
+	}
+
+	.brand-tagline {
+		font-size: 11px;
+		color: var(--text-muted);
+	}
+</style>
