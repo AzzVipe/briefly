@@ -2,7 +2,7 @@
 	<aside class="sidebar" :class="{ 'sidebar--collapsed': !isOpen }">
 		<div class="sidebar-inner">
 			<!-- Logo -->
-			<Logo :size="36" :showLabel="true" />
+			<UiLogo :size="36" :showLabel="true" />
 
 			<!-- New Chat -->
 			<button class="new-chat-btn" @click="$emit('new-chat')">

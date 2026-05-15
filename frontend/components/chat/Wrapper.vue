@@ -101,7 +101,7 @@
 			<Transition name="fade">
 				<div v-if="!hasMessages && !isLoadingMessages" class="welcome-area">
 					<div class="welcome-content">
-						<div class="welcome-logo"><Logo /></div>
+						<div class="welcome-logo"><UiLogo /></div>
 
 						<h1 class="welcome-title">
 							{{

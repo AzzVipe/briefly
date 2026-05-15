@@ -7,7 +7,7 @@
 		<!-- Navigation -->
 		<header class="landing-header">
 			<div class="landing-header-inner">
-				<Logo :show-label="true" />
+				<UiLogo :show-label="true" />
 
 				<nav class="landing-nav">
 					<a

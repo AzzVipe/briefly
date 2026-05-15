@@ -10,7 +10,7 @@
 		<div v-else class="assistant-message">
 			<div class="assistant-avatar">
 				<!-- gradient avatar mark -->
-				<Logo :size="24" />
+				<UiLogo :size="24" />
 			</div>
 			<div class="assistant-content">
 				<div class="assistant-header">
