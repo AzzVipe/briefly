@@ -40,7 +40,7 @@
 			<p class="hero-description">
 				Briefly is a private AI document workspace powered by Ollama, pgvector,
 				and local LLMs. Upload PDFs, perform semantic search, and chat with your
-				documents — without relying on cloud AI.
+				documents - without relying on cloud AI.
 			</p>
 
 			<div class="hero-actions">
@@ -130,7 +130,7 @@
 					<div class="feature-icon">🧠</div>
 					<h3>Local embeddings</h3>
 					<p>
-						Generate embeddings locally with Ollama-powered models — no external
+						Generate embeddings locally with Ollama-powered models - no external
 						AI APIs required.
 					</p>
 				</div>
@@ -212,7 +212,7 @@
 	definePageMeta({ layout: "blank" });
 
 	useHead({
-		title: "Briefly — Local-first conversational RAG workspace",
+		title: "Briefly - Local-first conversational RAG workspace",
 		meta: [
 			{
 				name: "description",

@@ -115,7 +115,7 @@
 		await deleteDocument(id);
 	}
 
-	useHead({ title: "Documents — Briefly" });
+	useHead({ title: "Documents - Briefly" });
 </script>
 
 <style scoped>

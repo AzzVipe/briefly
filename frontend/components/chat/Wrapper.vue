@@ -403,7 +403,7 @@
 	});
 
 	useHead({
-		title: "Briefly — Chat",
+		title: "Chat - Briefly",
 	});
 
 	const availableToAttach = computed(() => documents.value);

@@ -19,7 +19,7 @@ export default defineNuxtConfig({
 
 	app: {
 		head: {
-			title: "Briefly — AI Document Chat",
+			title: "Briefly - AI Document Chat",
 			meta: [
 				{ name: "description", content: "Chat with your documents using AI" },
 			],
