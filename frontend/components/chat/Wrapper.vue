@@ -101,9 +101,7 @@
 			<Transition name="fade">
 				<div v-if="!hasMessages && !isLoadingMessages" class="welcome-area">
 					<div class="welcome-content">
-						<div class="welcome-logo">
-							<Logo />
-						</div>
+						<div class="welcome-logo"><Logo /></div>
 
 						<h1 class="welcome-title">
 							{{
@@ -450,19 +448,11 @@
 		overflow: hidden;
 	}
 
-	.sidebar-overlay {
-		position: fixed;
-		inset: 0;
-		background: rgb(0 0 0 / 0.2);
-		z-index: 20;
-	}
-
 	.main-area {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
-		background: var(--surface);
 		overflow: hidden;
 	}
 

@@ -1,20 +1,25 @@
 <template>
-	<div class="app-layout">
-		<ChatSidebar
-			:conversations="conversations"
-			:active-conversation-id="activeConversationId"
-			:is-open="sidebarOpen"
-			@new-chat="handleNewChat"
-			@select-conversation="handleSelectConversation"
-			@delete-conversation="handleDeleteConversation" />
+	<div class="app-shell">
+		<UiBackground />
 
-		<div
-			v-if="sidebarOpen && isMobile"
-			class="sidebar-overlay"
-			@click="sidebarOpen = false" />
+		<div class="app-shell-content">
+			<ChatSidebar
+				:conversations="conversations"
+				:active-conversation-id="activeConversationId"
+				:is-open="sidebarOpen"
+				@new-chat="handleNewChat"
+				@select-conversation="handleSelectConversation"
+				@delete-conversation="handleDeleteConversation"
+				@update-conversation="handleUpdateConversation" />
 
-		<div class="main-content">
-			<slot />
+			<div
+				v-if="sidebarOpen && isMobile"
+				class="sidebar-overlay"
+				@click="sidebarOpen = false" />
+
+			<div class="main-content">
+				<slot />
+			</div>
 		</div>
 	</div>
 </template>
@@ -31,6 +36,7 @@
 		fetchConversations,
 		setActive,
 		deleteConversation,
+		updateConversation,
 	} = useConversations();
 
 	const sidebarOpen = ref(true);
@@ -76,14 +82,25 @@
 			router.push("/chat");
 		}
 	}
+
+	async function handleUpdateConversation(id: string, title: string) {
+		await updateConversation(id, title);
+	}
 </script>
 
 <style scoped>
-	.app-layout {
+	.app-shell {
+		position: relative;
+		min-height: 100vh;
+		background: var(--background);
+	}
+
+	.app-shell-content {
+		position: relative;
+		z-index: 1;
 		display: flex;
 		height: 100vh;
 		overflow: hidden;
-		background: var(--background);
 	}
 
 	.main-content {

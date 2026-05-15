@@ -2,7 +2,7 @@
 	<div
 		class="conv-item"
 		:class="{ 'conv-item--active': isActive }"
-		@click="$emit('select')">
+		@click="handleSelect">
 		<div class="conv-icon">
 			<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
 				<path
@@ -11,10 +11,29 @@
 					stroke-width="1.1" />
 			</svg>
 		</div>
+
 		<div class="conv-content">
-			<div class="conv-title">{{ conversation.title }}</div>
-			<div class="conv-meta">{{ timeAgo(conversation.createdAt) }}</div>
+			<input
+				v-if="isEditing"
+				ref="inputRef"
+				v-model="title"
+				class="conv-input"
+				@click.stop
+				@keyup.enter="saveRename"
+				@keyup.esc="cancelRename"
+				@blur="saveRename" />
+
+			<template v-else>
+				<div class="conv-title" @dblclick.stop="startRename">
+					{{ conversation.title }}
+				</div>
+
+				<div class="conv-meta">
+					{{ timeAgo(conversation.createdAt) }}
+				</div>
+			</template>
 		</div>
+
 		<button class="conv-delete" @click.stop="$emit('delete')" title="Delete">
 			<svg width="11" height="11" viewBox="0 0 11 11" fill="none">
 				<path
@@ -28,22 +47,79 @@
 </template>
 
 <script setup lang="ts">
+	import { nextTick, ref } from "vue";
 	import type { Conversation } from "~/types";
 
-	defineProps<{
+	const props = defineProps<{
 		conversation: Conversation;
 		isActive: boolean;
 	}>();
 
-	defineEmits<{ select: []; delete: [] }>();
+	const emit = defineEmits<{
+		select: [];
+		delete: [];
+		rename: [title: string];
+	}>();
+
+	const isEditing = ref(false);
+
+	const title = ref(props.conversation.title);
+
+	const inputRef = ref<HTMLInputElement>();
+
+	function handleSelect() {
+		if (isEditing.value) return;
+
+		emit("select");
+	}
+
+	async function startRename() {
+		isEditing.value = true;
+
+		title.value = props.conversation.title;
+
+		await nextTick();
+
+		inputRef.value?.focus();
+
+		inputRef.value?.select();
+	}
+
+	function cancelRename() {
+		isEditing.value = false;
+
+		title.value = props.conversation.title;
+	}
+
+	function saveRename() {
+		const trimmed = title.value.trim();
+
+		if (!trimmed) {
+			cancelRename();
+
+			return;
+		}
+
+		if (trimmed !== props.conversation.title) {
+			emit("rename", trimmed);
+		}
+
+		isEditing.value = false;
+	}
 
 	function timeAgo(date: Date): string {
 		const diff = Date.now() - new Date(date).getTime();
+
 		const mins = Math.floor(diff / 60000);
+
 		if (mins < 1) return "Just now";
+
 		if (mins < 60) return `${mins}m ago`;
+
 		const hrs = Math.floor(mins / 60);
+
 		if (hrs < 24) return `${hrs}h ago`;
+
 		return `${Math.floor(hrs / 24)}d ago`;
 	}
 </script>
@@ -89,6 +165,7 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		line-height: 1.3;
+		cursor: text;
 	}
 	.conv-meta {
 		font-size: 11px;

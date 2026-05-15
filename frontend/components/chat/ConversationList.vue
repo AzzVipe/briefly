@@ -7,7 +7,8 @@
 				:conversation="conv"
 				:is-active="conv.id === activeId"
 				@select="$emit('select', conv.id)"
-				@delete="$emit('delete', conv.id)" />
+				@delete="$emit('delete', conv.id)"
+				@rename="(title) => $emit('rename', conv.id, title)" />
 		</TransitionGroup>
 		<div v-if="!conversations.length" class="conv-empty">
 			No conversations yet
@@ -26,6 +27,7 @@
 	defineEmits<{
 		select: [id: string];
 		delete: [id: string];
+		rename: [id: string, title: string];
 	}>();
 </script>
 

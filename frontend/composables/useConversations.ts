@@ -80,6 +80,21 @@ export function useConversations() {
 		}
 	}
 
+	async function updateConversation(id: string, title: string) {
+		try {
+			await $fetch(`${apiBase}/conversations/${id}`, {
+				method: "PATCH",
+				body: {
+					title,
+				},
+			});
+			const idx = conversations.value.findIndex((c) => c.id === id);
+			if (conversations.value[idx]) conversations.value[idx].title = title;
+		} catch (e) {
+			console.error("Failed to update conversation", e);
+		}
+	}
+
 	return {
 		conversations,
 		activeConversationId,
@@ -88,5 +103,6 @@ export function useConversations() {
 		upsertConversation,
 		setActive,
 		deleteConversation,
+		updateConversation,
 	};
 }

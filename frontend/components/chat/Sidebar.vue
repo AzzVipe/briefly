@@ -50,7 +50,8 @@
 					:conversations="filteredConversations"
 					:active-id="activeConversationId"
 					@select="$emit('select-conversation', $event)"
-					@delete="$emit('delete-conversation', $event)" />
+					@delete="$emit('delete-conversation', $event)"
+					@rename="(id, title) => $emit('update-conversation', id, title)" />
 			</div>
 
 			<!-- Footer -->
@@ -80,6 +81,7 @@
 		"new-chat": [];
 		"select-conversation": [id: string];
 		"delete-conversation": [id: string];
+		"update-conversation": [id: string, title: string];
 	}>();
 
 	const searchQuery = ref("");
@@ -116,28 +118,6 @@
 		height: 100%;
 		overflow: hidden;
 		width: var(--sidebar-width);
-	}
-
-	/* Logo */
-	.sidebar-logo {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 14px 14px 12px;
-		flex-shrink: 0;
-	}
-	.logo-mark {
-		width: 28px;
-		height: 28px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	.logo-text {
-		font-size: 15px;
-		font-weight: 700;
-		color: var(--text-primary);
-		letter-spacing: -0.3px;
 	}
 
 	/* New Chat */
